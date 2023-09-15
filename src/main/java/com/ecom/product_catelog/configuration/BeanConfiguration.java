@@ -12,35 +12,46 @@ import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import com.mongodb.lang.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.env.Environment;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-
+@PropertySource(value = "application.properties", ignoreResourceNotFound = true)
 @Configuration
 public class BeanConfiguration {
+    //mongodb://username:password@ip:port/
 
-
-
+    @Value("${spring.data.mongodb.uri}")
+    private String uri;
+    @Value("${spring.data.mongodb.database}")
+    private String database;
 
     @Bean
     public MongoTemplate mongoTemplate() throws Exception {
-        MongoTemplate template = new MongoTemplate(mongoClient(),"aslam_db");
+
+        MongoTemplate template = new MongoTemplate(mongoClient(),database);
         return template;
     }
     @Bean
  public MongoClient mongoClient() throws Exception {
-     final ConnectionString connectionString = new ConnectionString("mongodb://aslam:aslam_pass@10.5.0.3:27017/");
+     final ConnectionString connectionString = new ConnectionString(uri);
      final MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
              .applyConnectionString(connectionString)
              .build();
      return MongoClients.create(mongoClientSettings);
  }
-
 
 
     @Bean("price")
