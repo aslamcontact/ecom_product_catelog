@@ -40,7 +40,6 @@ public class BeanConfiguration {
 
     @Bean
     public MongoTemplate mongoTemplate() throws Exception {
-
         MongoTemplate template = new MongoTemplate(mongoClient(),database);
         return template;
     }
