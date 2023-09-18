@@ -1,0 +1,37 @@
+version: '3.1'
+
+services:
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${mongo_username}
+      MONGO_INITDB_ROOT_PASSWORD: ${mongo_password}
+    networks:
+      api_net:
+        ipv4_address: 10.5.0.3
+
+
+  product_catelog_api:
+    image: aslamimages/product_catelog:latest
+    restart: always
+    environment:
+      username: ${mongo_username}
+      password: ${mongo_password}
+      database: ${mongo_database}
+      ip: 10.5.0.3
+      port: 27017
+    ports:
+      - "8085:8080"
+    networks:
+      api_net:
+        ipv4_address: 10.5.0.5
+
+networks:
+  api_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1
