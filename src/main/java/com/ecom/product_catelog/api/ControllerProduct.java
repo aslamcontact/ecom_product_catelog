@@ -63,6 +63,22 @@ public class ControllerProduct {
                                                       HttpStatus.OK);
 
     }
+    @PutMapping("/product")
+    public ResponseEntity<Optional<ProductNone>> updateProduct(@RequestBody ProductNone newProduct)
+    {
+        Optional<Product> findProduct= productDataService
+                                      .readProduct( newProduct.name(),
+                                                    newProduct.brand());
+           findProduct.get().setAbout(newProduct.about());
+           findProduct.get().setProductDescription(newProduct.descriptions());
+           Product updatedProduct=findProduct.get();
+          Optional<Product> result=Optional.of(productDataService
+                  .updateProduct(updatedProduct));
+
+        return new ResponseEntity<>(Optional.of(convertProduct(result)),
+                                     HttpStatus.OK);
+    }
+
 
 
     private ProductNone convertProduct(Optional<Product> product)
