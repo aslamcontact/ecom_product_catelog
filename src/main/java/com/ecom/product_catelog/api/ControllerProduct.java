@@ -2,12 +2,14 @@ package com.ecom.product_catelog.api;
 
 import com.ecom.product_catelog.businesslayer.ProductDataService;
 import com.ecom.product_catelog.daolayer.catelog.Product;
+import com.ecom.product_catelog.daolayer.catelog.quantity.QuantityV1;
 import com.mongodb.lang.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,8 +26,19 @@ public class ControllerProduct {
                                  @NonNull Long quantity,
                                  @NonNull Double price
                                ){};
+    private record ProductSingle( @NonNull String name,
+                                     @NonNull String brand,
+                                     @NonNull List<String> descriptions,
+                                     @NonNull Map<String,String> about,
+                                     @NonNull String categoryName,
+                                     @NonNull List<ProductDataService.SingleDivision> categories
 
-    @PostMapping("/product")
+
+                                ){};
+
+
+
+    @PostMapping("/product/category/none")
     public ResponseEntity<ProductNone> addProduct(@RequestBody ProductNone newProduct) {
 
 
@@ -38,17 +51,17 @@ public class ControllerProduct {
                          newProduct.descriptions(),
                          newProduct.about());
 
-         return new ResponseEntity<>(convertProduct(result), HttpStatus.CREATED);
+         return new ResponseEntity<>(productToNone(result), HttpStatus.CREATED);
 
     }
-    @GetMapping("/product")
+    @GetMapping("/product/category/none")
     public ResponseEntity<Optional<ProductNone>> getProduct( @RequestParam(value="name") String name,
                                                              @RequestParam(value = "brand") String brand)
     {
              Optional<Product> product;
 
             product=productDataService.readProduct(name,brand);
-            return new ResponseEntity<>(Optional.of(convertProduct(product)), HttpStatus.OK);
+            return new ResponseEntity<>(Optional.of(productToNone(product)), HttpStatus.OK);
 
 
     }
@@ -63,7 +76,7 @@ public class ControllerProduct {
                                                       HttpStatus.OK);
 
     }
-    @PutMapping("/product")
+    @PutMapping("/product/category/none")
     public ResponseEntity<Optional<ProductNone>> updateProduct(@RequestBody ProductNone newProduct)
     {
         Optional<Product> findProduct= productDataService
@@ -75,13 +88,30 @@ public class ControllerProduct {
           Optional<Product> result=Optional.of(productDataService
                   .updateProduct(updatedProduct));
 
-        return new ResponseEntity<>(Optional.of(convertProduct(result)),
+        return new ResponseEntity<>(Optional.of(productToNone(result)),
                                      HttpStatus.OK);
     }
 
 
+     @PostMapping("/product/category/single")
+    public ResponseEntity<ProductSingle> addProductSingle(@RequestBody ProductSingle newProduct)
+    {
 
-    private ProductNone convertProduct(Optional<Product> product)
+        Optional<Product> result=productDataService.createProduct( newProduct.name(),
+                                          newProduct.brand(),
+                                          newProduct.descriptions(),
+                                          newProduct.about(),
+                                          newProduct.categories(),
+                                          newProduct.categoryName());
+
+        return new ResponseEntity<>(productToSingle(result),HttpStatus.CREATED);
+
+    }
+
+
+
+
+    private ProductNone productToNone(Optional<Product> product)
     {
         Product result=product.get();
 
@@ -95,6 +125,33 @@ public class ControllerProduct {
                                        .getPrice()
                                        .getPricePerItem());
 
+    }
+
+    private ProductSingle productToSingle(Optional<Product> product)
+    {
+        Product result=product.get();
+        List< ProductDataService.SingleDivision> categories=new ArrayList<>();
+
+        result.getProductVariation()
+                .getVariations()
+                .forEach((type,qty)->
+                        {
+                            QuantityV1 qtyPrice= (QuantityV1) qty;
+
+                            categories.add(new ProductDataService.SingleDivision( type,
+                                                                                  qtyPrice.getPrice().getPricePerItem(),
+                                                                                   qtyPrice.getQuantity()));
+                        }
+
+                );
+
+        return new ProductSingle( result.getProductName(),
+                                  result.getBrand(),
+                                  result.getProductDescription(),
+                                  result.getAbout(),
+                                  result.getProductVariation().getName(),
+                                  categories
+                                );
     }
 
 }
