@@ -113,6 +113,18 @@ public class ControllerProduct {
 
     }
 
+    @GetMapping("/product/category/single")
+    public ResponseEntity<Optional<ProductSingle>> getProductSingle( @RequestParam(value="name") String name,
+                                                             @RequestParam(value = "brand") String brand)
+    {
+        Optional<Product> product;
+
+        product=productDataService.readProduct(name,brand);
+        return new ResponseEntity<>(Optional.of(productToSingle(product)), HttpStatus.OK);
+
+
+    }
+
 
 
 
