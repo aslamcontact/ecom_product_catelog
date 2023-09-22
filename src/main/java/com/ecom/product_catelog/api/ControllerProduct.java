@@ -1,7 +1,9 @@
 package com.ecom.product_catelog.api;
 
 import com.ecom.product_catelog.businesslayer.ProductDataService;
+import com.ecom.product_catelog.daolayer.catelog.Pricing.Price;
 import com.ecom.product_catelog.daolayer.catelog.Product;
+import com.ecom.product_catelog.daolayer.catelog.quantity.NosQuantityV1;
 import com.ecom.product_catelog.daolayer.catelog.quantity.QuantityV1;
 import com.mongodb.lang.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,14 +81,17 @@ public class ControllerProduct {
     @PutMapping("/product/category/none")
     public ResponseEntity<Optional<ProductNone>> updateProduct(@RequestBody ProductNone newProduct)
     {
-        Optional<Product> findProduct= productDataService
+        Product findProduct= productDataService
                                       .readProduct( newProduct.name(),
-                                                    newProduct.brand());
-           findProduct.get().setAbout(newProduct.about());
-           findProduct.get().setProductDescription(newProduct.descriptions());
-           Product updatedProduct=findProduct.get();
+                                                    newProduct.brand()).get();
+           findProduct.setAbout(newProduct.about());
+           findProduct.setProductDescription(newProduct.descriptions());
+           findProduct.setQuantityAndPrice(new NosQuantityV1( newProduct.quantity(),
+                                                              new Price(newProduct.price()))
+                                          );
+
           Optional<Product> result=Optional.of(productDataService
-                  .updateProduct(updatedProduct));
+                  .updateProduct(findProduct));
 
         return new ResponseEntity<>(Optional.of(productToNone(result)),
                                      HttpStatus.OK);
