@@ -5,6 +5,8 @@ import com.ecom.product_catelog.daolayer.catelog.Pricing.Price;
 import com.ecom.product_catelog.daolayer.catelog.Product;
 import com.ecom.product_catelog.daolayer.catelog.quantity.NosQuantityV1;
 import com.ecom.product_catelog.daolayer.catelog.quantity.QuantityV1;
+import com.ecom.product_catelog.daolayer.catelog.variation.SingleVariation;
+import com.ecom.product_catelog.daolayer.catelog.variation.VariationV1;
 import com.mongodb.lang.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,19 +43,22 @@ public class ControllerProduct {
 
 
     @PostMapping("/product/category/none")
-    public ResponseEntity<ProductNone> addProduct(@RequestBody ProductNone newProduct) {
+    public ResponseEntity<Optional<ProductNone>> addProduct(@RequestBody ProductNone newProduct) {
 
 
 
          Optional<Product> result = productDataService
-                 .createProduct(newProduct.name(),
+                 .createProductWithNone(newProduct.name(),
                          newProduct.brand(),
                          new ProductDataService.None(newProduct.quantity(),
                                  newProduct.price()),
                          newProduct.descriptions(),
                          newProduct.about());
 
-         return new ResponseEntity<>(productToNone(result), HttpStatus.CREATED);
+         return new ResponseEntity<>(
+                                      Optional.of(productToNone(result)),
+                                      HttpStatus.CREATED
+                                    );
 
     }
     @GetMapping("/product/category/none")
@@ -81,20 +86,20 @@ public class ControllerProduct {
     @PutMapping("/product/category/none")
     public ResponseEntity<Optional<ProductNone>> updateProduct(@RequestBody ProductNone newProduct)
     {
-        Product findProduct= productDataService
-                                      .readProduct( newProduct.name(),
-                                                    newProduct.brand()).get();
-           findProduct.setAbout(newProduct.about());
-           findProduct.setProductDescription(newProduct.descriptions());
-           findProduct.setQuantityAndPrice(new NosQuantityV1( newProduct.quantity(),
-                                                              new Price(newProduct.price()))
-                                          );
+        Optional<Product> result = productDataService
+                .updateProductWithNone(
+                                        newProduct.name(),
+                                        newProduct.brand(),
+                                        new ProductDataService.None(newProduct.quantity(),
+                                        newProduct.price()),
+                                        newProduct.descriptions(),
+                                        newProduct.about()
+                                     );
 
-          Optional<Product> result=Optional.of(productDataService
-                  .updateProduct(findProduct));
-
-        return new ResponseEntity<>(Optional.of(productToNone(result)),
-                                     HttpStatus.OK);
+        return new ResponseEntity<>(
+                                      Optional.of(productToNone(result)),
+                                      HttpStatus.CREATED
+                                   );
     }
 
 
@@ -124,6 +129,30 @@ public class ControllerProduct {
 
 
     }
+
+
+    @PutMapping("/product/category/single")
+    public ResponseEntity<Optional<ProductSingle>> updateProductSingle(@RequestBody ProductSingle newProduct)
+    {
+
+
+        Product findProduct= productDataService
+                             .readProduct( newProduct.name(),
+                                           newProduct.brand())
+                             .get();
+        findProduct.setAbout(newProduct.about());
+        findProduct.setProductDescription(newProduct.descriptions());
+                 findProduct.getProductVariation();
+
+
+
+        Optional<Product> result=Optional.of(productDataService
+                .updateProduct(findProduct));
+
+        return new ResponseEntity<>( Optional.of(productToSingle(result)),
+                                     HttpStatus.OK);
+    }
+
 
 
 

@@ -41,7 +41,7 @@ public class ProductDataService {
 
 
 
-//create product with double div
+//create product with double categories
 
     public Optional<Product> createProduct(String productName,
                                            String productBrand,
@@ -99,7 +99,7 @@ public class ProductDataService {
 
 
 
-    //create product with sub Category
+    //create product with categories
 
     public Optional<Product> createProduct(     String productName,
                                                 String productBrand,
@@ -151,9 +151,9 @@ public class ProductDataService {
     }
 
 
-    //create Product without Category
+    //create Product with Non Caregories
 
-    public Optional<Product> createProduct( String productName,
+    public Optional<Product> createProductWithNone( String productName,
                                             String productBrand,
                                             None priceQuantity,
                                             List<String> descriptions,
@@ -195,11 +195,35 @@ public class ProductDataService {
                     +productName+" and Brand "+productBrand);
         return result;
     }
-    public Product updateProduct(Product newProduct)
+    //update product without category
+    public Optional<Product> updateProductWithNone(
+                                          String productName,
+                                          String productBrand,
+                                          None priceQuantity,
+                                          List<String> descriptions,
+                                          Map<String,String> aboutProduct
+    )
     {
-        if(!checkProduct(newProduct.getProductName(),newProduct.getBrand()))
-            throw new ProductException("Check The Product Name and Brand");
-       return productRepository.save(newProduct);
+
+        Product newProduct;
+        productBrand=productBrand.trim().toLowerCase();
+        productName=productName.trim().toLowerCase();
+
+        if(!checkProduct(productName,productBrand))
+            throw new ProductException("There is no product with this productName and productBrand");
+
+        QuantityV1 quantity= (QuantityV1) beans.getBean(qtyBean,
+                priceQuantity.quantity(),
+                beans.getBean(priceBean,priceQuantity.price())
+        );
+        newProduct= (Product) beans.getBean(  productNoneBean,
+                productName,
+                productBrand,
+                aboutProduct,
+                descriptions,
+                quantity);
+
+        return Optional.of(productRepository.save(newProduct));
     }
 
     //Delete product
