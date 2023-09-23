@@ -39,6 +39,15 @@ public class ControllerProduct {
 
 
                                 ){};
+    private record ProductDouble( @NonNull String name,
+                                  @NonNull String brand,
+                                  @NonNull List<String> descriptions,
+                                  @NonNull Map<String,String> about,
+                                  @NonNull String categoryName,
+                                  @NonNull List<ProductDataService.DoubleDivision> categoriesWithSub
+
+
+    ){};
 
 
 
@@ -137,6 +146,28 @@ public class ControllerProduct {
 
 
 
+    @PostMapping("/product/category/double")
+    public ResponseEntity<Optional<ProductDouble>> addProductDouble(@RequestBody ProductDouble newProduct) {
+
+
+
+        Optional<Product> result = productDataService
+                .createProductWithDouble(newProduct.name(),
+                        newProduct.brand(),
+                        newProduct.descriptions(),
+                        newProduct.about(),
+                        newProduct.categoryName(),
+                        newProduct.categoriesWithSub()
+                );
+
+        return new ResponseEntity<>(
+                Optional.of(productToDoble(result)),
+                HttpStatus.CREATED
+        );
+
+    }
+
+
 
 
     @DeleteMapping("/product")
@@ -148,6 +179,52 @@ public class ControllerProduct {
         productDataService.deleteProduct(name, brand);
         return new ResponseEntity<>("Product Deleted "+name+" Brand "+brand,
                 HttpStatus.OK);
+
+    }
+
+
+    private ProductDouble productToDoble(Optional<Product> product) {
+           Product result=product.get();
+        List< ProductDataService.DoubleDivision> categoriesWithSub=new ArrayList<>();
+        result.getProductVariation()
+                .getVariations()
+                .forEach((mainCatName,mainCategories)->
+                        {
+                            SingleVariation singleVariation= (SingleVariation) mainCategories;
+                            Map<String,QuantityV1> subCategories=singleVariation.getVariations();
+
+                            subCategories.forEach( (subCatName,subCatPrQty)->
+                            {
+                                List<ProductDataService.SubDiv> subDivs=new ArrayList<>();
+                                   subDivs.add(
+                                                 new ProductDataService.SubDiv(
+                                                                                 subCatName,
+                                                                                 subCatPrQty.getPrice().getPricePerItem(),
+                                                                                 subCatPrQty.getQuantity()
+                                                                       )
+                                                  );
+
+                                categoriesWithSub.add(
+                                        new ProductDataService.DoubleDivision(mainCatName,subCatName,subDivs)
+                                );
+
+                            }
+
+                            );
+
+
+                        }
+
+                );
+
+     return new ProductDouble(
+                               result.getProductName(),
+                               result.getBrand(),
+                               result.getProductDescription(),
+                               result.getAbout(),
+                               result.getProductVariation().getName(),
+                               categoriesWithSub
+        );
 
     }
 
