@@ -72,17 +72,7 @@ public class ControllerProduct {
 
 
     }
-    @DeleteMapping("/product")
-    public ResponseEntity<String> removeProduct( @RequestParam(value = "name") String name,
-                                                      @RequestParam(value = "brand") String brand)
-    {
 
-
-                   productDataService.deleteProduct(name, brand);
-                    return new ResponseEntity<>("Product Deleted "+name+" Brand "+brand,
-                                                      HttpStatus.OK);
-
-    }
     @PutMapping("/product/category/none")
     public ResponseEntity<Optional<ProductNone>> updateProduct(@RequestBody ProductNone newProduct)
     {
@@ -120,7 +110,7 @@ public class ControllerProduct {
 
     @GetMapping("/product/category/single")
     public ResponseEntity<Optional<ProductSingle>> getProductSingle( @RequestParam(value="name") String name,
-                                                             @RequestParam(value = "brand") String brand)
+                                                                     @RequestParam(value = "brand") String brand)
     {
         Optional<Product> product;
 
@@ -130,31 +120,36 @@ public class ControllerProduct {
 
     }
 
-
     @PutMapping("/product/category/single")
-    public ResponseEntity<Optional<ProductSingle>> updateProductSingle(@RequestBody ProductSingle newProduct)
+    public ResponseEntity<ProductSingle> updateProductSingle(@RequestBody ProductSingle newProduct)
     {
 
+        Optional<Product> result=productDataService.createProduct( newProduct.name(),
+                newProduct.brand(),
+                newProduct.descriptions(),
+                newProduct.about(),
+                newProduct.categories(),
+                newProduct.categoryName());
 
-        Product findProduct= productDataService
-                             .readProduct( newProduct.name(),
-                                           newProduct.brand())
-                             .get();
-        findProduct.setAbout(newProduct.about());
-        findProduct.setProductDescription(newProduct.descriptions());
-                 findProduct.getProductVariation();
+        return new ResponseEntity<>(productToSingle(result),HttpStatus.CREATED);
 
-
-
-        Optional<Product> result=Optional.of(productDataService
-                .updateProduct(findProduct));
-
-        return new ResponseEntity<>( Optional.of(productToSingle(result)),
-                                     HttpStatus.OK);
     }
 
 
 
+
+
+    @DeleteMapping("/product")
+    public ResponseEntity<String> removeProduct( @RequestParam(value = "name") String name,
+                                                 @RequestParam(value = "brand") String brand)
+    {
+
+
+        productDataService.deleteProduct(name, brand);
+        return new ResponseEntity<>("Product Deleted "+name+" Brand "+brand,
+                HttpStatus.OK);
+
+    }
 
 
     private ProductNone productToNone(Optional<Product> product)

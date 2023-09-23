@@ -151,6 +151,58 @@ public class ProductDataService {
     }
 
 
+    public Optional<Product> updateProductWithSingle(
+                                                        String productName,
+                                                        String productBrand,
+                                                        List<String> descriptions,
+                                                        Map<String,String> aboutProduct,
+                                                        List<SingleDivision> divideProducts,
+                                                        String divisionName
+                                                    )
+    {
+
+        VariationV1<?> variation;
+        Product newProduct;
+
+
+        productBrand=productBrand.trim().toLowerCase();
+        productName=productName.trim().toLowerCase();
+        if(!checkProduct(productName,productBrand))
+            throw new ProductException("Product Name "+productName+
+                    " and Brand "+productBrand+" there is no product ");
+
+        Map<String, QuantityV1> divResult=divideProducts
+                .stream()
+                .collect( Collectors.toMap(
+                                SingleDivision::divideValue,
+                                subQuantity->
+                                        (QuantityV1) beans.getBean(  qtyBean,
+                                                subQuantity.quantity(),
+                                                beans.getBean( priceBean,
+                                                        subQuantity.price()
+                                                )
+                                        )
+                        )
+                );
+
+
+        variation= (VariationV1<?>) beans.getBean(singleDivBean,divisionName,divResult);
+
+
+        newProduct= (Product) beans.getBean(
+                                              productVarBean,
+                                              productName,
+                                              productBrand,
+                                              aboutProduct,
+                                              descriptions,
+                                               variation
+                                           );
+
+
+        return Optional.of(productRepository.save(newProduct));
+
+    }
+
     //create Product with Non Caregories
 
     public Optional<Product> createProductWithNone( String productName,
@@ -184,24 +236,13 @@ public class ProductDataService {
 
     }
 
-
-    public Optional<Product> readProduct(String productName,String productBrand)
-    {
-        Optional<Product> result;
-        result= productRepository
-                .findById("Id_"+(productName+productBrand.toLowerCase().trim()));
-        if(result.isEmpty())
-            throw new ProductException("There is No Product With This Name "
-                    +productName+" and Brand "+productBrand);
-        return result;
-    }
     //update product without category
     public Optional<Product> updateProductWithNone(
-                                          String productName,
-                                          String productBrand,
-                                          None priceQuantity,
-                                          List<String> descriptions,
-                                          Map<String,String> aboutProduct
+            String productName,
+            String productBrand,
+            None priceQuantity,
+            List<String> descriptions,
+            Map<String,String> aboutProduct
     )
     {
 
@@ -225,6 +266,19 @@ public class ProductDataService {
 
         return Optional.of(productRepository.save(newProduct));
     }
+
+    public Optional<Product> readProduct(String productName,String productBrand)
+    {
+        Optional<Product> result;
+        result= productRepository
+                .findById("Id_"+(productName+productBrand.toLowerCase().trim()));
+        if(result.isEmpty())
+            throw new ProductException("There is No Product With This Name "
+                    +productName+" and Brand "+productBrand);
+        return result;
+    }
+
+
 
     //Delete product
 
