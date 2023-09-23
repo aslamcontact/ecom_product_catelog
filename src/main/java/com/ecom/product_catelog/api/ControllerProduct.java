@@ -124,7 +124,7 @@ public class ControllerProduct {
     public ResponseEntity<ProductSingle> updateProductSingle(@RequestBody ProductSingle newProduct)
     {
 
-        Optional<Product> result=productDataService.createProduct( newProduct.name(),
+        Optional<Product> result=productDataService.updateProductWithSingle( newProduct.name(),
                 newProduct.brand(),
                 newProduct.descriptions(),
                 newProduct.about(),
