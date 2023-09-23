@@ -43,7 +43,7 @@ public class ProductDataService {
 
 //create product with double categories
 
-    public Optional<Product> createProduct(String productName,
+    public Optional<Product> createProductWithDouble(String productName,
                                            String productBrand,
                                            List<String> descriptions,
                                            Map<String,String> aboutProduct,
@@ -101,7 +101,7 @@ public class ProductDataService {
 
     //create product with categories
 
-    public Optional<Product> createProduct(     String productName,
+    public Optional<Product> createProductWithSingle(     String productName,
                                                 String productBrand,
                                                 List<String> descriptions,
                                                 Map<String,String> aboutProduct,
