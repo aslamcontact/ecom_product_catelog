@@ -218,7 +218,7 @@ public class ControllerProduct {
          List<ProductDataService.DoubleDivision> resultMainCategory=new ArrayList<>();
          //iterate main Category
          mainCategories.forEach(
-                                  (mainCategoryValues,subCategory)->
+                                  (mainCategoryValue,subCategory)->
                                    {
 
              List<ProductDataService.SubDiv> resultSubCategory = new ArrayList<>();
@@ -241,7 +241,7 @@ public class ControllerProduct {
                      }
              );
              resultMainCategory.add(
-                     new ProductDataService.DoubleDivision(mainCategoryName,subCategoryName,resultSubCategory)
+                     new ProductDataService.DoubleDivision(mainCategoryValue,subCategoryName,resultSubCategory)
              );
 
          }
