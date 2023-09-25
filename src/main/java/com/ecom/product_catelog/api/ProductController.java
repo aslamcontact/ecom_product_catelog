@@ -86,7 +86,7 @@ public class ProductController {
 
     @GetMapping("/product/category/single")
     public ResponseEntity<Optional<ProductParser.ProductSingle>> getProductSingle( @RequestParam(value="name") String name,
-                                                                     @RequestParam(value = "brand") String brand)
+                                                                                   @RequestParam(value = "brand") String brand)
     {
         Optional<Product> product;
 
@@ -151,6 +151,18 @@ public class ProductController {
 
 
         return new ResponseEntity<>(parser.productToDouble(result),HttpStatus.CREATED);
+
+    }
+
+    @GetMapping("/product/category/double")
+    public ResponseEntity<Optional<ProductParser.ProductDouble>> getProductDouble( @RequestParam(value="name") String name,
+                                                                                   @RequestParam(value = "brand") String brand)
+    {
+        Optional<Product> product;
+
+        product=productDataService.readProduct(name,brand);
+        return new ResponseEntity<>(Optional.of(parser.productToDouble(product)), HttpStatus.OK);
+
 
     }
 
