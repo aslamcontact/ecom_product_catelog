@@ -98,6 +98,61 @@ public class ProductDataService {
     }
 
 
+    public Optional<Product> updateProductWithDouble(String productName,
+                                                     String productBrand,
+                                                     List<String> descriptions,
+                                                     Map<String,String> aboutProduct,
+                                                     String divisionName,
+                                                     List<DoubleDivision> divideProducts
+
+    )
+    {
+        VariationV1<?> variation;
+        Product newProduct;
+        productBrand=productBrand.trim().toLowerCase();
+        productName=productName.trim().toLowerCase();
+
+        if(!checkProduct(productName,productBrand))
+            throw new ProductException("Product Name "+productName+
+                    " and Brand "+productBrand+" there is no product ");
+
+
+        Map<String, SingleVariation> divResult=divideProducts
+                .stream()
+                .collect(Collectors.toMap(
+                                DoubleDivision::mainDivName,
+                                (nextLevel)-> (SingleVariation) beans.getBean(singleDivBean,
+                                        nextLevel.subDivName(),
+                                        nextLevel.subDivs().stream()
+                                                .collect(Collectors.toMap(SubDiv::divideValue,
+                                                        q->beans.getBean(  qtyBean,
+                                                                q.quantity(),
+                                                                beans.getBean(priceBean,
+                                                                        q.price()))))
+                                )
+
+
+                        )
+
+
+                );
+
+        variation = (VariationV1<?>) beans.getBean(doubleDivBean,divisionName,divResult);
+
+
+        newProduct= (Product) beans.getBean( productVarBean,
+                productName,
+                productBrand,
+                aboutProduct,
+                descriptions,
+                variation);
+
+
+        return Optional.of(productRepository.save(newProduct));
+
+    }
+
+
 
     //create product with categories
 
@@ -118,7 +173,7 @@ public class ProductDataService {
         productName=productName.trim().toLowerCase();
         if(checkProduct(productName,productBrand))
             throw new ProductException("Product Name "+productName+
-                                       " and Brand "+productBrand+" is Already Exists ");
+                                       " and Brand "+productBrand+" is Already exists");
 
         Map<String, QuantityV1> divResult=divideProducts
                                             .stream()

@@ -173,6 +173,26 @@ public class ControllerProduct {
     }
 
 
+    @PutMapping("/product/category/double")
+    public ResponseEntity<ProductDouble> updateProductDouble(@RequestBody ProductDouble newProduct)
+    {
+
+        Optional<Product> result = productDataService
+                .updateProductWithDouble( newProduct.name(),
+                                          newProduct.brand(),
+                                          newProduct.descriptions(),
+                                          newProduct.about(),
+                                          newProduct.categoryName(),
+                                          newProduct.categoriesWithSub()
+                                        );
+
+
+
+        return new ResponseEntity<>(productToDouble(result),HttpStatus.CREATED);
+
+    }
+
+
 
 
     @DeleteMapping("/product")
@@ -191,18 +211,28 @@ public class ControllerProduct {
     private ProductDouble productToDouble(Optional<Product> product) {
            Product result=product.get();
 
-         String color= result.getProductVariation().getName(); //colors
-         Map<String,SingleVariation> mapColors= (Map<String, SingleVariation>) result.getProductVariation().getVariations();
-         List<ProductDataService.DoubleDivision> doubleDivisionList=new ArrayList<>();
-         mapColors.forEach((colors,sizeSig)-> {
+           //main Category Name eg:colors
+         String mainCategoryName= result.getProductVariation().getName();
+         //main Category value eg eg: blue,green
+         Map<String,SingleVariation> mainCategories= (Map<String, SingleVariation>) result.getProductVariation().getVariations();
+         List<ProductDataService.DoubleDivision> resultMainCategory=new ArrayList<>();
+         //iterate main Category
+         mainCategories.forEach(
+                                  (mainCategoryValues,subCategory)->
+                                   {
 
-             Map<String, QuantityV1> sizes = sizeSig.getVariations();
-             List<ProductDataService.SubDiv> subDivList = new ArrayList<>();
-             sizes.forEach((size, qtyprice) ->
+             List<ProductDataService.SubDiv> resultSubCategory = new ArrayList<>();
+
+             //subCategory Name eg:size
+             String subCategoryName=subCategory.getName();
+             //subCategory Values eg:L,quantity(price,quantity)
+             Map<String, QuantityV1> subCategoryValues = subCategory.getVariations();
+             subCategoryValues.forEach(
+                     (subCategoryValue, qtyprice) ->
                      {
-                         subDivList.add(
+                         resultSubCategory.add(
                                  new ProductDataService.SubDiv(
-                                         size,
+                                         subCategoryValue,
                                          qtyprice.getPrice().getPricePerItem(),
                                          qtyprice.getQuantity()
                                  )
@@ -210,11 +240,12 @@ public class ControllerProduct {
 
                      }
              );
-             doubleDivisionList.add(
-                     new ProductDataService.DoubleDivision(colors,sizeSig.getName(),subDivList)
+             resultMainCategory.add(
+                     new ProductDataService.DoubleDivision(mainCategoryName,subCategoryName,resultSubCategory)
              );
 
-         } );
+         }
+         );
 
 
      return new ProductDouble(
@@ -223,7 +254,7 @@ public class ControllerProduct {
                                result.getProductDescription(),
                                result.getAbout(),
                                result.getProductVariation().getName(),
-                               doubleDivisionList
+                               resultMainCategory
         );
 
     }
@@ -248,7 +279,7 @@ public class ControllerProduct {
     private ProductSingle productToSingle(Optional<Product> product)
     {
         Product result=product.get();
-        List< ProductDataService.SingleDivision> categories=new ArrayList<>();
+        List<ProductDataService.SingleDivision> categories=new ArrayList<>();
 
         result.getProductVariation()
                 .getVariations()
