@@ -5,8 +5,10 @@ import com.ecom.product_catelog.daolayer.catelog.Pricing.Price;
 import com.ecom.product_catelog.daolayer.catelog.Product;
 import com.ecom.product_catelog.daolayer.catelog.quantity.NosQuantityV1;
 import com.ecom.product_catelog.daolayer.catelog.quantity.QuantityV1;
+import com.ecom.product_catelog.daolayer.catelog.variation.DoubleVariation;
 import com.ecom.product_catelog.daolayer.catelog.variation.SingleVariation;
 import com.ecom.product_catelog.daolayer.catelog.variation.VariationV1;
+import com.mongodb.ClientSessionOptions;
 import com.mongodb.lang.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -47,7 +52,7 @@ public class ControllerProduct {
                                   @NonNull List<ProductDataService.DoubleDivision> categoriesWithSub
 
 
-    ){};
+                                ){};
 
 
 
@@ -161,7 +166,7 @@ public class ControllerProduct {
                 );
 
         return new ResponseEntity<>(
-                Optional.of(productToDoble(result)),
+                Optional.of(productToDouble(result)),
                 HttpStatus.CREATED
         );
 
@@ -183,39 +188,34 @@ public class ControllerProduct {
     }
 
 
-    private ProductDouble productToDoble(Optional<Product> product) {
+    private ProductDouble productToDouble(Optional<Product> product) {
            Product result=product.get();
-        List< ProductDataService.DoubleDivision> categoriesWithSub=new ArrayList<>();
-        result.getProductVariation()
-                .getVariations()
-                .forEach((mainCatName,mainCategories)->
-                        {
-                            SingleVariation singleVariation= (SingleVariation) mainCategories;
-                            Map<String,QuantityV1> subCategories=singleVariation.getVariations();
 
-                            subCategories.forEach( (subCatName,subCatPrQty)->
-                            {
-                                List<ProductDataService.SubDiv> subDivs=new ArrayList<>();
-                                   subDivs.add(
-                                                 new ProductDataService.SubDiv(
-                                                                                 subCatName,
-                                                                                 subCatPrQty.getPrice().getPricePerItem(),
-                                                                                 subCatPrQty.getQuantity()
-                                                                       )
-                                                  );
+         String color= result.getProductVariation().getName(); //colors
+         Map<String,SingleVariation> mapColors= (Map<String, SingleVariation>) result.getProductVariation().getVariations();
+         List<ProductDataService.DoubleDivision> doubleDivisionList=new ArrayList<>();
+         mapColors.forEach((colors,sizeSig)-> {
 
-                                categoriesWithSub.add(
-                                        new ProductDataService.DoubleDivision(mainCatName,subCatName,subDivs)
-                                );
+             Map<String, QuantityV1> sizes = sizeSig.getVariations();
+             List<ProductDataService.SubDiv> subDivList = new ArrayList<>();
+             sizes.forEach((size, qtyprice) ->
+                     {
+                         subDivList.add(
+                                 new ProductDataService.SubDiv(
+                                         size,
+                                         qtyprice.getPrice().getPricePerItem(),
+                                         qtyprice.getQuantity()
+                                 )
+                         );
 
-                            }
+                     }
+             );
+             doubleDivisionList.add(
+                     new ProductDataService.DoubleDivision(colors,sizeSig.getName(),subDivList)
+             );
 
-                            );
+         } );
 
-
-                        }
-
-                );
 
      return new ProductDouble(
                                result.getProductName(),
@@ -223,7 +223,7 @@ public class ControllerProduct {
                                result.getProductDescription(),
                                result.getAbout(),
                                result.getProductVariation().getName(),
-                               categoriesWithSub
+                               doubleDivisionList
         );
 
     }
