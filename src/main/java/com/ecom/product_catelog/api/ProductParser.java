@@ -27,7 +27,7 @@ public class ProductParser {
                                   @NonNull List<String> descriptions,
                                   @NonNull Map<String,String> about,
                                   @NonNull String categoryName,
-                                  @NonNull List<ProductDataService.SingleDivision> categories
+                                  @NonNull List<ProductDataService.SingleCategory> categories
 
 
     ){};
@@ -36,7 +36,7 @@ public class ProductParser {
                                   @NonNull List<String> descriptions,
                                   @NonNull Map<String,String> about,
                                   @NonNull String categoryName,
-                                  @NonNull List<ProductDataService.DoubleDivision> categoriesWithSub
+                                  @NonNull List<ProductDataService.DoubleCategory> categoriesWithSub
 
 
     ){};
@@ -50,13 +50,13 @@ public class ProductParser {
         String mainCategoryName= result.getProductVariation().getName();
         //main Category value eg eg: blue,green
         Map<String, SingleVariation> mainCategories= (Map<String, SingleVariation>) result.getProductVariation().getVariations();
-        List<ProductDataService.DoubleDivision> resultMainCategory=new ArrayList<>();
+        List<ProductDataService.DoubleCategory> resultMainCategory=new ArrayList<>();
         //iterate main Category
         mainCategories.forEach(
                 (mainCategoryValue,subCategory)->
                 {
 
-                    List<ProductDataService.SubDiv> resultSubCategory = new ArrayList<>();
+                    List<ProductDataService.SubCategory> resultSubCategory = new ArrayList<>();
 
                     //subCategory Name eg:size
                     String subCategoryName=subCategory.getName();
@@ -66,7 +66,7 @@ public class ProductParser {
                             (subCategoryValue, qtyprice) ->
                             {
                                 resultSubCategory.add(
-                                        new ProductDataService.SubDiv(
+                                        new ProductDataService.SubCategory(
                                                 subCategoryValue,
                                                 qtyprice.getPrice().getPricePerItem(),
                                                 qtyprice.getQuantity()
@@ -76,7 +76,7 @@ public class ProductParser {
                             }
                     );
                     resultMainCategory.add(
-                            new ProductDataService.DoubleDivision(mainCategoryValue,subCategoryName,resultSubCategory)
+                            new ProductDataService.DoubleCategory(mainCategoryValue,subCategoryName,resultSubCategory)
                     );
 
                 }
@@ -114,7 +114,7 @@ public class ProductParser {
     public ProductSingle productToSingle(Optional<Product> product)
     {
         Product result=product.get();
-        List<ProductDataService.SingleDivision> categories=new ArrayList<>();
+        List<ProductDataService.SingleCategory> categories=new ArrayList<>();
 
         result.getProductVariation()
                 .getVariations()
@@ -122,7 +122,7 @@ public class ProductParser {
                         {
                             QuantityV1 qtyPrice= (QuantityV1) qty;
 
-                            categories.add(new ProductDataService.SingleDivision( type,
+                            categories.add(new ProductDataService.SingleCategory(type,
                                     qtyPrice.getPrice().getPricePerItem(),
                                     qtyPrice.getQuantity()));
                         }

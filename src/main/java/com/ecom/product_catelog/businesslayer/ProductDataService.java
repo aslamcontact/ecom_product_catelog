@@ -34,9 +34,9 @@ public class ProductDataService {
     final
 
 
-    public  record  DoubleDivision(String mainDivName,String subDivName,List<SubDiv> subDivs){};
-    public  record  SubDiv(String divideValue,Double price,Long quantity){};
-    public  record  SingleDivision(String divideValue, Double price, Long quantity){};
+    public  record  DoubleCategory(String mainCategories,String subCategoryName,List<SubCategory> subCategory){};
+    public  record  SubCategory(String subCategories,Double price,Long quantity){};
+    public  record  SingleCategory(String value, Double price, Long quantity){};
     public  record  None(Long quantity,Double price){};
 
 
@@ -48,7 +48,7 @@ public class ProductDataService {
                                            List<String> descriptions,
                                            Map<String,String> aboutProduct,
                                            String divisionName,
-                                           List<DoubleDivision> divideProducts
+                                           List<DoubleCategory> divideProducts
 
     )
     {
@@ -65,11 +65,11 @@ public class ProductDataService {
         Map<String, SingleVariation> divResult=divideProducts
                 .stream()
                 .collect(Collectors.toMap(
-                                          DoubleDivision::mainDivName,
+                                          DoubleCategory::mainCategories,
                                           (nextLevel)-> (SingleVariation) beans.getBean(singleDivBean,
-                                                               nextLevel.subDivName(),
-                                                               nextLevel.subDivs().stream()
-                                                               .collect(Collectors.toMap(SubDiv::divideValue,
+                                                               nextLevel.subCategoryName(),
+                                                               nextLevel.subCategory().stream()
+                                                               .collect(Collectors.toMap(SubCategory::subCategories,
                                                                        q->beans.getBean(  qtyBean,
                                                                                            q.quantity(),
                                                                                            beans.getBean(priceBean,
@@ -103,7 +103,7 @@ public class ProductDataService {
                                                      List<String> descriptions,
                                                      Map<String,String> aboutProduct,
                                                      String divisionName,
-                                                     List<DoubleDivision> divideProducts
+                                                     List<DoubleCategory> divideProducts
 
     )
     {
@@ -120,11 +120,11 @@ public class ProductDataService {
         Map<String, SingleVariation> divResult=divideProducts
                 .stream()
                 .collect(Collectors.toMap(
-                                DoubleDivision::mainDivName,
+                                DoubleCategory::mainCategories,
                                 (nextLevel)-> (SingleVariation) beans.getBean(singleDivBean,
-                                        nextLevel.subDivName(),
-                                        nextLevel.subDivs().stream()
-                                                .collect(Collectors.toMap(SubDiv::divideValue,
+                                        nextLevel.subCategoryName(),
+                                        nextLevel.subCategory().stream()
+                                                .collect(Collectors.toMap(SubCategory::subCategories,
                                                         q->beans.getBean(  qtyBean,
                                                                 q.quantity(),
                                                                 beans.getBean(priceBean,
@@ -160,7 +160,7 @@ public class ProductDataService {
                                                 String productBrand,
                                                 List<String> descriptions,
                                                 Map<String,String> aboutProduct,
-                                                List<SingleDivision> divideProducts,
+                                                List<SingleCategory> divideProducts,
                                                 String divisionName
                                             )
     {
@@ -178,7 +178,7 @@ public class ProductDataService {
         Map<String, QuantityV1> divResult=divideProducts
                                             .stream()
                                             .collect( Collectors.toMap(
-                                                      SingleDivision::divideValue,
+                                                      SingleCategory::value,
                                                       subQuantity->
                                                        (QuantityV1) beans.getBean(  qtyBean,
                                                                                      subQuantity.quantity(),
@@ -211,7 +211,7 @@ public class ProductDataService {
                                                         String productBrand,
                                                         List<String> descriptions,
                                                         Map<String,String> aboutProduct,
-                                                        List<SingleDivision> divideProducts,
+                                                        List<SingleCategory> divideProducts,
                                                         String divisionName
                                                     )
     {
@@ -229,7 +229,7 @@ public class ProductDataService {
         Map<String, QuantityV1> divResult=divideProducts
                 .stream()
                 .collect( Collectors.toMap(
-                                SingleDivision::divideValue,
+                                SingleCategory::value,
                                 subQuantity->
                                         (QuantityV1) beans.getBean(  qtyBean,
                                                 subQuantity.quantity(),
