@@ -1,14 +1,13 @@
 package com.ecom.product_catelog.businesslayer;
 
 import com.ecom.product_catelog.configuration.BeanConfiguration;
-import com.ecom.product_catelog.daolayer.catelog.*;
 import com.ecom.product_catelog.daolayer.catelog.Product;
 import com.ecom.product_catelog.daolayer.catelog.ProductRepository;
 import com.ecom.product_catelog.daolayer.catelog.quantity.QuantityV1;
-import com.ecom.product_catelog.daolayer.catelog.variation.*;
-import com.ecom.product_catelog.exceptions.ProductException;
 import com.ecom.product_catelog.daolayer.catelog.variation.SingleVariation;
 import com.ecom.product_catelog.daolayer.catelog.variation.VariationV1;
+import com.ecom.product_catelog.exceptions.product.ProductExistException;
+import com.ecom.product_catelog.exceptions.product.ProductNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
@@ -58,8 +57,7 @@ public class ProductDataService {
         productName=productName.trim().toLowerCase();
 
         if(checkProduct(productName,productBrand))
-            throw new ProductException("Product Name "+productName+
-                    " and Brand "+productBrand+" is Already Exists ");
+            throw new ProductExistException(productName,productBrand);
 
 
         Map<String, SingleVariation> divResult=divideProducts
@@ -113,8 +111,7 @@ public class ProductDataService {
         productName=productName.trim().toLowerCase();
 
         if(!checkProduct(productName,productBrand))
-            throw new ProductException("Product Name "+productName+
-                    " and Brand "+productBrand+" there is no product ");
+            throw new ProductNotExistException(productName,productBrand);
 
 
         Map<String, SingleVariation> divResult=divideProducts
@@ -172,8 +169,7 @@ public class ProductDataService {
         productBrand=productBrand.trim().toLowerCase();
         productName=productName.trim().toLowerCase();
         if(checkProduct(productName,productBrand))
-            throw new ProductException("Product Name "+productName+
-                                       " and Brand "+productBrand+" is Already exists");
+            throw new ProductExistException(productName,productBrand);
 
         Map<String, QuantityV1> divResult=divideProducts
                                             .stream()
@@ -223,8 +219,7 @@ public class ProductDataService {
         productBrand=productBrand.trim().toLowerCase();
         productName=productName.trim().toLowerCase();
         if(!checkProduct(productName,productBrand))
-            throw new ProductException("Product Name "+productName+
-                    " and Brand "+productBrand+" there is no product ");
+            throw new ProductNotExistException(productName,productBrand);
 
         Map<String, QuantityV1> divResult=divideProducts
                 .stream()
@@ -272,9 +267,7 @@ public class ProductDataService {
                   productName=productName.trim().toLowerCase();
 
                   if(checkProduct(productName,productBrand))
-                      throw new ProductException("Product Name "+productName+
-                                                   "  and Brand"+productBrand+
-                                                     " is  Already Used");
+                      throw new ProductExistException(productName,productBrand);
 
                   QuantityV1 quantity= (QuantityV1) beans.getBean(qtyBean,
                                                              priceQuantity.quantity(),
@@ -306,7 +299,7 @@ public class ProductDataService {
         productName=productName.trim().toLowerCase();
 
         if(!checkProduct(productName,productBrand))
-            throw new ProductException("There is no product with this productName and productBrand");
+            throw new ProductNotExistException(productName,productBrand);
 
         QuantityV1 quantity= (QuantityV1) beans.getBean(qtyBean,
                 priceQuantity.quantity(),
@@ -328,8 +321,7 @@ public class ProductDataService {
         result= productRepository
                 .findById("Id_"+(productName+productBrand.toLowerCase().trim()));
         if(result.isEmpty())
-            throw new ProductException("There is No Product With This Name "
-                    +productName+" and Brand "+productBrand);
+            throw new ProductNotExistException(productName,productBrand);
         return result;
     }
 
@@ -343,8 +335,7 @@ public class ProductDataService {
         productBrand=productBrand.trim().toLowerCase();
 
         if(!checkProduct(productName,productBrand))
-            throw new ProductException("There is No Product with This Name and Product ( "
-                    +productName+" "+productBrand+" )");
+            throw new ProductNotExistException(productName,productBrand);
 
         productRepository.deleteById("Id_"+productName+productBrand);
     }
