@@ -92,6 +92,14 @@ public class ProductDataService {
                                               descriptions,
                                                variation);
 
+        try {
+            imageService.saveImageMapper(newProduct.getProductID());
+        }catch (ImageMappeException exist)
+        {
+
+            throw new ProductExistException(productName,productBrand);
+        }
+
 
         return Optional.of(productRepository.save(newProduct));
 
@@ -197,6 +205,14 @@ public class ProductDataService {
                                                 aboutProduct,
                                                 descriptions,
                                                 variation);
+
+        try {
+            imageService.saveImageMapper(newProduct.getProductID());
+        }catch (ImageMappeException exist)
+        {
+
+            throw new ProductExistException(productName,productBrand);
+        }
 
 
         return Optional.of(productRepository.save(newProduct));
