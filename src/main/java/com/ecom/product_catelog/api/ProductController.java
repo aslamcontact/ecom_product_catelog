@@ -123,7 +123,7 @@ public class ProductController {
                         newProduct.brand(),
                         newProduct.descriptions(),
                         newProduct.about(),
-                        newProduct.categoryName(),
+                        newProduct.mainCategoryName(),
                         newProduct.categoriesWithSub()
                 );
 
@@ -144,7 +144,7 @@ public class ProductController {
                                           newProduct.brand(),
                                           newProduct.descriptions(),
                                           newProduct.about(),
-                                          newProduct.categoryName(),
+                                          newProduct.mainCategoryName(),
                                           newProduct.categoriesWithSub()
                                         );
 

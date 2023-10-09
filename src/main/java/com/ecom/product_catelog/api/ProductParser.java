@@ -35,7 +35,7 @@ public class ProductParser {
                                   @NonNull String brand,
                                   @NonNull List<String> descriptions,
                                   @NonNull Map<String,String> about,
-                                  @NonNull String categoryName,
+                                  @NonNull String mainCategoryName,
                                   @NonNull List<ProductDataService.DoubleCategory> categoriesWithSub
 
 
