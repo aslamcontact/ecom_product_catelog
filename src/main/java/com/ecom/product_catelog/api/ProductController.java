@@ -143,9 +143,9 @@ public class ProductController {
 
 
 
-    @DeleteMapping("/product")
-    public ResponseEntity<String> removeProduct( @RequestParam(value = "name") String name,
-                                                 @RequestParam(value = "brand") String brand)
+    @DeleteMapping("/product/{name}/{brand}")
+    public ResponseEntity<String> removeProduct( @PathVariable(value = "name") String name,
+                                                 @PathVariable(value = "brand") String brand)
     {
 
 
@@ -154,9 +154,9 @@ public class ProductController {
                 HttpStatus.OK);
 
     }
-    @GetMapping("/product")
-    public ResponseEntity<Optional<?>>  getProduct( @RequestParam(value = "name") String name,
-                                                    @RequestParam(value = "brand") String brand)
+    @GetMapping("/product/{name}/{brand}")
+    public ResponseEntity<Optional<?>>  getProduct( @PathVariable(value = "name") String name,
+                                                    @PathVariable(value = "brand") String brand)
     {
 
         Optional<Product> product;
@@ -171,9 +171,9 @@ public class ProductController {
             return new ResponseEntity<>(Optional.of(parser.productToSingle(product)), HttpStatus.OK);
     }
 
-    @GetMapping("/product/filter/categories")
-    public ResponseEntity<Optional<List<String>>> getCategories(   @RequestParam(value="name") String name,
-                                                                   @RequestParam(value = "brand") String brand)
+    @GetMapping("/product/get/category/{name}/{brand}")
+    public ResponseEntity<Optional<List<String>>> getCategories(   @PathVariable(value="name") String name,
+                                                                   @PathVariable(value = "brand") String brand)
     {
               return new ResponseEntity<>(productDataService.filterCategories(name,brand), HttpStatus.OK);
     }
