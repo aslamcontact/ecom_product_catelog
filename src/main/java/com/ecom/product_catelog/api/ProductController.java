@@ -1,12 +1,15 @@
 package com.ecom.product_catelog.api;
 
 import com.ecom.product_catelog.businesslayer.ProductDataService;
+import com.ecom.product_catelog.businesslayer.ProductParser;
 import com.ecom.product_catelog.daolayer.catelog.Product;
+import com.ecom.product_catelog.daolayer.catelog.variation.VariationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -18,7 +21,7 @@ public class ProductController {
     ProductParser parser;
 
 
-    @PostMapping("/product/category/none")
+    @PostMapping("/product/none")
     public ResponseEntity<Optional<ProductParser.ProductNone>> addProduct(@RequestBody ProductParser.ProductNone newProduct) {
 
 
@@ -37,19 +40,9 @@ public class ProductController {
                                     );
 
     }
-    @GetMapping("/product/category/none")
-    public ResponseEntity<Optional<ProductParser.ProductNone>> getProduct(@RequestParam(value="name") String name,
-                                                                          @RequestParam(value = "brand") String brand)
-    {
-             Optional<Product> product;
-
-            product=productDataService.readProduct(name,brand);
-            return new ResponseEntity<>(Optional.of(parser.productToNone(product)), HttpStatus.OK);
 
 
-    }
-
-    @PutMapping("/product/category/none")
+    @PutMapping("/product/none")
     public ResponseEntity<Optional<ProductParser.ProductNone>> updateProduct(@RequestBody ProductParser.ProductNone newProduct)
     {
         Optional<Product> result = productDataService
@@ -69,7 +62,7 @@ public class ProductController {
     }
 
 
-     @PostMapping("/product/category/single")
+     @PostMapping("/product/single")
     public ResponseEntity<ProductParser.ProductSingle> addProductSingle(@RequestBody ProductParser.ProductSingle newProduct)
     {
 
@@ -84,19 +77,10 @@ public class ProductController {
 
     }
 
-    @GetMapping("/product/category/single")
-    public ResponseEntity<Optional<ProductParser.ProductSingle>> getProductSingle( @RequestParam(value="name") String name,
-                                                                                   @RequestParam(value = "brand") String brand)
-    {
-        Optional<Product> product;
-
-        product=productDataService.readProduct(name,brand);
-        return new ResponseEntity<>(Optional.of(parser.productToSingle(product)), HttpStatus.OK);
 
 
-    }
 
-    @PutMapping("/product/category/single")
+    @PutMapping("/product/single")
     public ResponseEntity<ProductParser.ProductSingle> updateProductSingle(@RequestBody ProductParser.ProductSingle newProduct)
     {
 
@@ -113,7 +97,7 @@ public class ProductController {
 
 
 
-    @PostMapping("/product/category/double")
+    @PostMapping("/product/double")
     public ResponseEntity<Optional<ProductParser.ProductDouble>> addProductDouble(@RequestBody ProductParser.ProductDouble newProduct) {
 
 
@@ -135,7 +119,7 @@ public class ProductController {
     }
 
 
-    @PutMapping("/product/category/double")
+    @PutMapping("/product/double")
     public ResponseEntity<ProductParser.ProductDouble> updateProductDouble(@RequestBody ProductParser.ProductDouble newProduct)
     {
 
@@ -154,17 +138,7 @@ public class ProductController {
 
     }
 
-    @GetMapping("/product/category/double")
-    public ResponseEntity<Optional<ProductParser.ProductDouble>> getProductDouble( @RequestParam(value="name") String name,
-                                                                                   @RequestParam(value = "brand") String brand)
-    {
-        Optional<Product> product;
 
-        product=productDataService.readProduct(name,brand);
-        return new ResponseEntity<>(Optional.of(parser.productToDouble(product)), HttpStatus.OK);
-
-
-    }
 
 
 
@@ -179,6 +153,29 @@ public class ProductController {
         return new ResponseEntity<>("Product Deleted "+name+" Brand "+brand,
                 HttpStatus.OK);
 
+    }
+    @GetMapping("/product")
+    public ResponseEntity<Optional<?>>  getProduct( @RequestParam(value = "name") String name,
+                                                    @RequestParam(value = "brand") String brand)
+    {
+
+        Optional<Product> product;
+        VariationType productType;
+        product=productDataService.readProduct(name,brand);
+        productType=product.get().getVariationType();
+        if (productType.equals(VariationType.NONE))
+            return new ResponseEntity<>(Optional.of(parser.productToNone(product)), HttpStatus.OK);
+        else if(productType.equals(VariationType.DOUBLE))
+            return new ResponseEntity<>(Optional.of(parser.productToDouble(product)), HttpStatus.OK);
+        else
+            return new ResponseEntity<>(Optional.of(parser.productToSingle(product)), HttpStatus.OK);
+    }
+
+    @GetMapping("/product/filter/categories")
+    public ResponseEntity<Optional<List<String>>> getCategories(   @RequestParam(value="name") String name,
+                                                                   @RequestParam(value = "brand") String brand)
+    {
+              return new ResponseEntity<>(productDataService.filterCategories(name,brand), HttpStatus.OK);
     }
 
 

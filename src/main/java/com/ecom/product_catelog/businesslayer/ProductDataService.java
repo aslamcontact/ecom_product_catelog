@@ -5,6 +5,7 @@ import com.ecom.product_catelog.daolayer.catelog.Product;
 import com.ecom.product_catelog.daolayer.catelog.ProductRepository;
 import com.ecom.product_catelog.daolayer.catelog.quantity.QuantityV1;
 import com.ecom.product_catelog.daolayer.catelog.variation.SingleVariation;
+import com.ecom.product_catelog.daolayer.catelog.variation.VariationType;
 import com.ecom.product_catelog.daolayer.catelog.variation.VariationV1;
 import com.ecom.product_catelog.exceptions.product.ProductExistException;
 import com.ecom.product_catelog.exceptions.product.ProductNotExistException;
@@ -19,7 +20,8 @@ import java.util.stream.Collectors;
 public class ProductDataService {
     @Autowired
     private ProductRepository productRepository;
-
+    @Autowired
+    private  ProductParser parser;
     AnnotationConfigApplicationContext beans= new AnnotationConfigApplicationContext(BeanConfiguration.class);
 
     private final String qtyBean="nos-quantity";
@@ -323,6 +325,41 @@ public class ProductDataService {
         if(result.isEmpty())
             throw new ProductNotExistException(productName,productBrand);
         return result;
+    }
+
+    public Optional<List<String>> filterCategories(String productName,String productBarnd)
+    {
+        Optional<Product> product;
+        VariationType type;
+        List<String> categories=new ArrayList<>();
+
+
+        product=readProduct(productName,productBarnd);
+        type=product.get().getVariationType();
+
+        if(type.equals(VariationType.SINGLE))
+        {
+            ProductParser.ProductSingle result = parser.productToSingle(product);
+            categories = result
+                    .categories()
+                    .stream()
+                    .map((obj) -> obj.value())
+                    .collect(Collectors.toList());
+            return Optional.of(categories);
+        }
+        if(type.equals((VariationType.DOUBLE)))
+        {
+            ProductParser.ProductDouble result = parser.productToDouble(product);
+              categories = result.categoriesWithSub()
+                    .stream()
+                    .map((obj->obj.mainCategories()))
+                    .collect(Collectors.toList());
+
+
+        }
+
+        return Optional.of(categories);
+
     }
 
 

@@ -1,4 +1,4 @@
-package com.ecom.product_catelog.api;
+package com.ecom.product_catelog.businesslayer;
 
 import com.ecom.product_catelog.businesslayer.ProductDataService;
 import com.ecom.product_catelog.daolayer.catelog.Product;
