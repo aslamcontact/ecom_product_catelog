@@ -138,16 +138,10 @@ public class ProductController {
 
     }
 
-
-
-
-
-
     @DeleteMapping("/product/{name}/{brand}")
     public ResponseEntity<String> removeProduct( @PathVariable(value = "name") String name,
                                                  @PathVariable(value = "brand") String brand)
     {
-
 
         productDataService.deleteProduct(name, brand);
         return new ResponseEntity<>("Product Deleted "+name+" Brand "+brand,
