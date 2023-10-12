@@ -7,11 +7,14 @@ import com.ecom.product_catelog.daolayer.catelog.quantity.QuantityV1;
 import com.ecom.product_catelog.daolayer.catelog.variation.SingleVariation;
 import com.ecom.product_catelog.daolayer.catelog.variation.VariationType;
 import com.ecom.product_catelog.daolayer.catelog.variation.VariationV1;
+import com.ecom.product_catelog.exceptions.images.ImageMapperExistException;
+import com.ecom.product_catelog.exceptions.images.ProductCategoryNotExist;
 import com.ecom.product_catelog.exceptions.product.ProductExistException;
 import com.ecom.product_catelog.exceptions.product.ProductNotExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,6 +25,9 @@ public class ProductDataService {
     private ProductRepository productRepository;
     @Autowired
     private  ProductParser parser;
+
+    @Autowired
+    private ImageServiceExternal imageServiceExternal;
     AnnotationConfigApplicationContext beans= new AnnotationConfigApplicationContext(BeanConfiguration.class);
 
     private final String qtyBean="nos-quantity";
@@ -93,8 +99,8 @@ public class ProductDataService {
                                                variation);
 
         try {
-            imageService.saveImageMapper(newProduct.getProductID());
-        }catch (ImageMappeException exist)
+            imageServiceExternal.saveImageMapper(newProduct.getProductID());
+        }catch (ImageMapperExistException exist)
         {
 
             throw new ProductExistException(productName,productBrand);
@@ -207,8 +213,9 @@ public class ProductDataService {
                                                 variation);
 
         try {
-            imageService.saveImageMapper(newProduct.getProductID());
-        }catch (ImageMappeException exist)
+            imageServiceExternal.saveImageMapper(newProduct.getProductID());
+            System.out.println(newProduct.getProductID());
+        }catch (ImageMapperExistException exist)
         {
 
             throw new ProductExistException(productName,productBrand);
@@ -291,12 +298,21 @@ public class ProductDataService {
                                                              priceQuantity.quantity(),
                                                              beans.getBean(priceBean,priceQuantity.price())
                                                          );
-                  newProduct= (Product) beans.getBean(  productNoneBean,
+
+        newProduct= (Product) beans.getBean(  productNoneBean,
                                                         productName,
                                                         productBrand,
                                                         aboutProduct,
                                                         descriptions,
                                                         quantity);
+        try {
+            imageServiceExternal.saveImageMapper(newProduct.getProductID());
+        }catch (ImageMapperExistException exist)
+        {
+
+            throw new ProductExistException(productName,productBrand);
+        }
+
 
                    return Optional.of(productRepository.save(newProduct));
 
@@ -373,7 +389,7 @@ public class ProductDataService {
 
 
         }
-
+          categories.add("main");
         return Optional.of(categories);
 
     }
@@ -389,11 +405,56 @@ public class ProductDataService {
 
         if(!checkProduct(productName,productBrand))
             throw new ProductNotExistException(productName,productBrand);
+        try {
+            imageServiceExternal.removeImageMapper("Id_"+productName+productBrand);
 
-        productRepository.deleteById("Id_"+productName+productBrand);
+        }catch (ImageMapperExistException exception)
+        {
+            //add exception if image mapper in not found
+        }
+        finally {
+            productRepository.deleteById("Id_"+productName+productBrand);
+        }
+
     }
+  public byte[] getImage( String productName,
+                          String productBrand,
+                          String productCategory
+                         )
+  {
+      productName=productName.trim().toLowerCase();
+      productBrand=productBrand.trim().toLowerCase();
+      if(!checkProduct(productName,productBrand))
+          throw new ProductNotExistException(productName,productBrand);
+
+     return imageServiceExternal.getImageFromMapper(
+                                             "Id_"+productName+productBrand,
+                                              productCategory);
+  }
+
+  public String setImage(String productName,
+                         String productBrand,
+                         String productCategory,
+                         MultipartFile image)
+  {
+      Optional<List<String>> checkCategories;
+      productName=productName.trim().toLowerCase();
+      productBrand=productBrand.trim().toLowerCase();
+
+      if(!checkProduct(productName,productBrand))
+          throw new ProductNotExistException(productName,productBrand);
+       checkCategories=filterCategories(productName,productBrand);
+
+       if(checkCategories.isPresent())
+           if(!checkCategories.get().contains(productCategory)) throw new ProductCategoryNotExist(productName,productBrand);
+
+      return imageServiceExternal.setImageToMapper("Id_"+productName+productBrand,
+          productCategory,
+          image);
 
 
+
+  }
 
 
     //private methods
