@@ -4,10 +4,13 @@ import com.ecom.product_catelog.businesslayer.ProductDataService;
 import com.ecom.product_catelog.businesslayer.ProductParser;
 import com.ecom.product_catelog.daolayer.catelog.Product;
 import com.ecom.product_catelog.daolayer.catelog.variation.VariationType;
+import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -165,13 +168,30 @@ public class ProductController {
             return new ResponseEntity<>(Optional.of(parser.productToSingle(product)), HttpStatus.OK);
     }
 
-    @GetMapping("/product/get/category/{name}/{brand}")
+    @GetMapping("/product/image/links/{name}/{brand}")
     public ResponseEntity<Optional<List<String>>> getCategories(   @PathVariable(value="name") String name,
                                                                    @PathVariable(value = "brand") String brand)
     {
               return new ResponseEntity<>(productDataService.filterCategories(name,brand), HttpStatus.OK);
     }
 
+    @GetMapping( value = "/product/image/{name}/{brand}/{link}",
+                 produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<byte[]> getImage(   @PathVariable(value="name") String name,
+                                              @PathVariable(value = "brand") String brand,
+                                              @PathVariable(value = "link") String category)
+    {
+        return new ResponseEntity<>(productDataService.getImage(name,brand,category), HttpStatus.OK);
+    }
+    @PostMapping( value ="/product/image/{name}/{brand}/{category}",
+                   consumes =MediaType.MULTIPART_FORM_DATA_VALUE )
+    public ResponseEntity<String> setImage(@PathVariable(value="name") String name,
+                                           @PathVariable(value = "brand") String brand,
+                                           @PathVariable(value = "category") String category,
+                                           @RequestBody MultipartFile image)
+    {
 
+       return new ResponseEntity<>(productDataService.setImage(name,brand,category,image),HttpStatus.OK);
+    }
 
 }
