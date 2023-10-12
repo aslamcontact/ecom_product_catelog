@@ -4,16 +4,16 @@ public class ProductExistException extends RuntimeException{
 
     private final String productName;
     private final String brandName;
-    static final String message="Already Exist";
+    static final String errorMessage="Product Already Exist";
 
     public ProductExistException(String productName, String brandName) {
-        super(message);
+        super(errorMessage);
         this.productName = productName;
         this.brandName = brandName;
     }
 
     public ProductExistException(Throwable cause, String productName, String brandName) {
-        super(message, cause);
+        super(errorMessage, cause);
         this.productName = productName;
         this.brandName = brandName;
     }
