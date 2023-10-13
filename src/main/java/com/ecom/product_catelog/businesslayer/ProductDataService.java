@@ -456,6 +456,19 @@ public class ProductDataService {
 
   }
 
+ public Optional<List<ProductParser.ProductNone>> getAllProduct()
+  {
+      List<Product> allPrduct= productRepository.findAll();
+      List<ProductParser.ProductNone> rerult;
+      if(allPrduct.isEmpty())return Optional.of(List.of());
+
+     rerult=allPrduct
+             .stream()
+             .map(product -> parser.productToNone(Optional.of(product)))
+             .collect(Collectors.toList());
+     return Optional.of(rerult);
+  }
+
 
     //private methods
 

@@ -193,5 +193,13 @@ public class ProductController {
 
        return new ResponseEntity<>(productDataService.setImage(name,brand,category,image),HttpStatus.OK);
     }
+    @GetMapping("/product/all")
+    public ResponseEntity<Optional<List<ProductParser.ProductNone>>>  getAllproduct( )
+    {
+
+
+            return new ResponseEntity<>(productDataService.getAllProduct(), HttpStatus.OK);
+        }
+
 
 }
