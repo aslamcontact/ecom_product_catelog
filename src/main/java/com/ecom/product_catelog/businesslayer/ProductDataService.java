@@ -377,7 +377,7 @@ public class ProductDataService {
                     .stream()
                     .map((obj) -> obj.value())
                     .collect(Collectors.toList());
-            return Optional.of(categories);
+
         }
         if(type.equals((VariationType.DOUBLE)))
         {
