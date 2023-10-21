@@ -200,6 +200,13 @@ public class ProductController {
 
             return new ResponseEntity<>(productDataService.getAllProduct(), HttpStatus.OK);
         }
+    @GetMapping("/product/filter/{brand}")
+    public ResponseEntity<Optional<List<ProductParser.ProductNone>>>  getAllproductByBrand( @PathVariable(value = "brand") String brand )
+    {
+
+
+        return new ResponseEntity<>(productDataService.getAllProductByBrand(brand), HttpStatus.OK);
+    }
 
 
 }

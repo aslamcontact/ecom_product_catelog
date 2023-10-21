@@ -49,7 +49,7 @@ public class SingleVariation implements VariationV1 {
 
        return variations.values()
                 .stream()
-                .filter(q -> q.getQuantity() > 0)
+                .filter(q -> q.getQuantity() > -1)
                 .min(finMinPrice);
 
 

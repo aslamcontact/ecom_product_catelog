@@ -468,6 +468,21 @@ public class ProductDataService {
              .collect(Collectors.toList());
      return Optional.of(rerult);
   }
+    public Optional<List<ProductParser.ProductNone>> getAllProductByBrand(String brand)
+    {
+        List<Product> allPrduct= productRepository.findAll();
+        allPrduct=allPrduct.stream()
+                           .filter(product -> product.getBrand()
+                                   .equals(brand)).collect(Collectors.toList());
+        List<ProductParser.ProductNone> rerult;
+        if(allPrduct.isEmpty())return Optional.of(List.of());
+
+        rerult=allPrduct
+                .stream()
+                .map(product -> parser.productToNone(Optional.of(product)))
+                .collect(Collectors.toList());
+        return Optional.of(rerult);
+    }
 
 
     //private methods
