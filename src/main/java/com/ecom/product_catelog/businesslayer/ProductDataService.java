@@ -446,17 +446,46 @@ public class ProductDataService {
        checkCategories=filterCategories(productName,productBrand);
 
        if(checkCategories.isPresent())
-           if(!checkCategories.get().contains(productCategory)) throw new ProductCategoryNotExist(productName,productBrand);
+           if(!checkCategories.get().contains(productCategory))
+               throw new ProductCategoryNotExist(productName,productBrand);
 
-      return imageServiceExternal.setImageToMapper("Id_"+productName+productBrand,
-          productCategory,
-          image);
+      return imageServiceExternal
+              .setImageToMapper("Id_"+productName+productBrand,
+                                 productCategory,
+                                 image);
 
 
 
   }
 
- public Optional<List<ProductParser.ProductNone>> getAllProduct()
+    public String updateImage(String productName,
+                           String productBrand,
+                           String productCategory,
+                           MultipartFile image)
+    {
+        Optional<List<String>> checkCategories;
+        productName=productName.trim().toLowerCase();
+        productBrand=productBrand.trim().toLowerCase();
+
+        if(!checkProduct(productName,productBrand))
+            throw new ProductNotExistException(productName,productBrand);
+        checkCategories=filterCategories(productName,productBrand);
+
+        if(checkCategories.isPresent())
+            if(!checkCategories.get().contains(productCategory))
+                throw new ProductCategoryNotExist(productName,productBrand);
+
+        return imageServiceExternal
+                .updateImageToMapper("Id_"+productName+productBrand,
+                                   productCategory,
+                                   image);
+
+
+
+    }
+
+
+    public Optional<List<ProductParser.ProductNone>> getAllProduct()
   {
       List<Product> allPrduct= productRepository.findAll();
       List<ProductParser.ProductNone> rerult;

@@ -122,6 +122,36 @@ public String setImageToMapper(String imageMapperId,
 
 }
 
+    public String updateImageToMapper(String imageMapperId,
+                                      String category ,
+                                      MultipartFile image){
+
+        String path = url + "/api/v1/product/image/mapper/" + imageMapperId + "/" + category;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        ResponseEntity<String> response=ResponseEntity.ofNullable(null);
+
+        MultiValueMap<String,Resource> body = new LinkedMultiValueMap<>();
+        body.add("image",image.getResource());
+
+        HttpEntity<MultiValueMap<String,Resource>> entity;
+        entity = new HttpEntity<>(body, headers);
+        try {
+
+            response = template
+                       .exchange( path,
+                                  HttpMethod.PUT,
+                                  entity,
+                                  String.class);
+        }catch (HttpClientErrorException e)
+        {
+            if(e.getStatusCode().value()<500) throw new ImageExistException(  e.getStatusCode(),
+                    e.getMessage());
+        }
+
+        return response.getBody();
+
+    }
 
 
 

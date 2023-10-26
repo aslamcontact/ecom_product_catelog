@@ -195,6 +195,17 @@ public class ProductController {
 
        return new ResponseEntity<>(productDataService.setImage(name,brand,category,image),HttpStatus.OK);
     }
+    @PutMapping( value ="/product/image/{name}/{brand}/{category}",
+                 consumes =MediaType.MULTIPART_FORM_DATA_VALUE )
+    public ResponseEntity<String> updateImage(@PathVariable(value="name") String name,
+                                              @PathVariable(value = "brand") String brand,
+                                              @PathVariable(value = "category") String category,
+                                              @RequestBody MultipartFile image)
+    {
+
+        return new ResponseEntity<>(productDataService.setImage(name,brand,category,image),HttpStatus.OK);
+    }
+
     @GetMapping("/product/all")
     public ResponseEntity<Optional<List<ProductParser.ProductNone>>>  getAllproduct( )
     {
