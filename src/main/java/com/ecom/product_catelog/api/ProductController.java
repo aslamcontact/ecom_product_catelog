@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Optional;
 
+
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/v1")
 public class ProductController {
@@ -142,12 +144,12 @@ public class ProductController {
     }
 
     @DeleteMapping("/product/{name}/{brand}")
-    public ResponseEntity<String> removeProduct( @PathVariable(value = "name") String name,
+    public ResponseEntity<Optional<String>> removeProduct( @PathVariable(value = "name") String name,
                                                  @PathVariable(value = "brand") String brand)
     {
 
         productDataService.deleteProduct(name, brand);
-        return new ResponseEntity<>("Product Deleted "+name+" Brand "+brand,
+        return new ResponseEntity<>(Optional.of("Product Deleted "+name+" Brand "+brand),
                 HttpStatus.OK);
 
     }
