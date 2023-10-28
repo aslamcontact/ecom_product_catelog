@@ -427,10 +427,23 @@ public class ProductDataService {
       if(!checkProduct(productName,productBrand))
           throw new ProductNotExistException(productName,productBrand);
 
-     return imageServiceExternal.getImageFromMapper(
-                                             "Id_"+productName+productBrand,
+     return imageServiceExternal
+             .getImageFromMapper("Id_"+productName+productBrand,
                                               productCategory);
   }
+
+    public List<String> getAllImages( String productName,
+                                  String productBrand
+    )
+    {
+        productName=productName.trim().toLowerCase();
+        productBrand=productBrand.trim().toLowerCase();
+        if(!checkProduct(productName,productBrand))
+            throw new ProductNotExistException(productName,productBrand);
+
+        return imageServiceExternal
+                .getAllImagesFromMapper("Id_"+productName+productBrand);
+    }
 
   public String setImage(String productName,
                          String productBrand,

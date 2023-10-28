@@ -15,6 +15,10 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 @PropertySource(value = "application.properties", ignoreResourceNotFound = true)
 @Service
 public class ImageServiceExternal {
@@ -92,6 +96,35 @@ public class ImageServiceExternal {
 
        return  response.getBody();
    }
+
+
+    public List<String> getAllImagesFromMapper( String imageMapperId
+    )
+    {
+        String path=url+"/api/v1/product/image/mapper/"+imageMapperId;
+        HttpHeaders httpHeaders=new HttpHeaders();
+        ResponseEntity<String[]> response=ResponseEntity.ofNullable(null);
+        //  httpHeaders.setAccept(List.of(MediaType.APPLICATION_JSON));
+        HttpEntity<String> entity=new HttpEntity<>(httpHeaders);
+
+        try {
+            response = template.exchange(
+                    path,
+                    HttpMethod.GET,
+                    entity,
+                    String[].class
+            );
+        }catch (HttpClientErrorException e)
+        {
+            if(e.getStatusCode().value()<500)throw new ImageNotExistException( e.getStatusCode(),
+                    e.getMessage());
+
+        }
+
+
+        return  Arrays.asList(response.getBody());
+    }
+
 public String setImageToMapper(String imageMapperId,
                                String category ,
                                MultipartFile image){

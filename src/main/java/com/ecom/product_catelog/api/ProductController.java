@@ -6,17 +6,20 @@ import com.ecom.product_catelog.daolayer.catelog.Product;
 import com.ecom.product_catelog.daolayer.catelog.variation.VariationType;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin( origins = "http://localhost:4200"
+             )
 @RestController
 @RequestMapping("/api/v1")
 public class ProductController {
@@ -185,25 +188,35 @@ public class ProductController {
     {
         return new ResponseEntity<>(productDataService.getImage(name,brand,category), HttpStatus.OK);
     }
+
+    @GetMapping( value = "/product/image/assigned/{name}/{brand}")
+    public ResponseEntity<Optional<List<String>>>  getAllImages(   @PathVariable(value="name") String name,
+                                                                   @PathVariable(value = "brand") String brand
+                                              )
+    {
+        return new ResponseEntity<>(Optional.of(productDataService.getAllImages(name,brand)),
+                      HttpStatus.OK);
+    }
     @PostMapping( value ="/product/image/{name}/{brand}/{category}",
                    consumes =MediaType.MULTIPART_FORM_DATA_VALUE )
-    public ResponseEntity<String> setImage(@PathVariable(value="name") String name,
+    public ResponseEntity<Optional<String>> setImage(@PathVariable(value="name") String name,
                                            @PathVariable(value = "brand") String brand,
                                            @PathVariable(value = "category") String category,
                                            @RequestBody MultipartFile image)
     {
 
-       return new ResponseEntity<>(productDataService.setImage(name,brand,category,image),HttpStatus.OK);
+       return new ResponseEntity<>(Optional.of(productDataService.setImage(name,brand,category,image)),HttpStatus.OK);
     }
     @PutMapping( value ="/product/image/{name}/{brand}/{category}",
                  consumes =MediaType.MULTIPART_FORM_DATA_VALUE )
-    public ResponseEntity<String> updateImage(@PathVariable(value="name") String name,
+    public ResponseEntity<Optional<String>> updateImage(@PathVariable(value="name") String name,
                                               @PathVariable(value = "brand") String brand,
                                               @PathVariable(value = "category") String category,
                                               @RequestBody MultipartFile image)
     {
 
-        return new ResponseEntity<>(productDataService.setImage(name,brand,category,image),HttpStatus.OK);
+        return new ResponseEntity<>(Optional.of(productDataService.updateImage(name,brand,category,image)),
+                HttpStatus.OK);
     }
 
     @GetMapping("/product/all")
