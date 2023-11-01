@@ -155,6 +155,7 @@ public String setImageToMapper(String imageMapperId,
 
 }
 
+
     public String updateImageToMapper(String imageMapperId,
                                       String category ,
                                       MultipartFile image){
@@ -172,10 +173,38 @@ public String setImageToMapper(String imageMapperId,
         try {
 
             response = template
-                       .exchange( path,
-                                  HttpMethod.PUT,
-                                  entity,
-                                  String.class);
+                    .exchange( path,
+                            HttpMethod.PUT,
+                            entity,
+                            String.class);
+        }catch (HttpClientErrorException e)
+        {
+            if(e.getStatusCode().value()<500) throw new ImageExistException(  e.getStatusCode(),
+                    e.getMessage());
+        }
+
+        return response.getBody();
+
+    }
+
+    public String deleteImageFromMapper(String imageMapperId,
+                                        String category
+    ){
+
+        String path = url + "/api/v1/product/image/mapper/" + imageMapperId + "/" + category;
+
+
+        ResponseEntity<String> response=ResponseEntity.ofNullable(null);
+        HttpEntity<String> entity=new HttpEntity<>(new HttpHeaders());
+
+
+        try {
+
+            response = template
+                    .exchange( path,
+                            HttpMethod.DELETE,
+                            entity,
+                            String.class);
         }catch (HttpClientErrorException e)
         {
             if(e.getStatusCode().value()<500) throw new ImageExistException(  e.getStatusCode(),

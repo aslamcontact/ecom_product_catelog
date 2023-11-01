@@ -219,6 +219,18 @@ public class ProductController {
                 HttpStatus.OK);
     }
 
+    @DeleteMapping( value ="/product/image/{name}/{brand}/{category}" )
+    public ResponseEntity<Optional<String>> deleteImage( @PathVariable(value="name") String name,
+                                                         @PathVariable(value = "brand") String brand,
+                                                         @PathVariable(value = "category") String category)
+    {
+
+        return new ResponseEntity<>( Optional.of( productDataService.removeImage(name,brand,category)),
+                                                  HttpStatus.OK);
+    }
+
+
+
     @GetMapping("/product/all")
     public ResponseEntity<Optional<List<ProductParser.ProductNone>>>  getAllproduct( )
     {

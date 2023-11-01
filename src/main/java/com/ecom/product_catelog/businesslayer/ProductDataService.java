@@ -497,6 +497,33 @@ public class ProductDataService {
 
     }
 
+    public String removeImage(String productName,
+                              String productBrand,
+                              String productCategory
+                              )
+    {
+        Optional<List<String>> checkCategories;
+        productName=productName.trim().toLowerCase();
+        productBrand=productBrand.trim().toLowerCase();
+
+        if(!checkProduct(productName,productBrand))
+            throw new ProductNotExistException(productName,productBrand);
+        checkCategories=filterCategories(productName,productBrand);
+
+        if(checkCategories.isPresent())
+            if(!checkCategories.get().contains(productCategory))
+                throw new ProductCategoryNotExist(productName,productBrand);
+
+        return imageServiceExternal
+                .deleteImageFromMapper("Id_"+productName+productBrand,
+                                       productCategory
+                                       );
+
+
+
+    }
+
+
 
     public Optional<List<ProductParser.ProductNone>> getAllProduct()
   {
